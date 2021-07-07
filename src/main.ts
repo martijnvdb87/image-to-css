@@ -1,12 +1,12 @@
 import './style.css';
 
-const app: HTMLDivElement = <HTMLDivElement>document.querySelector('#app');
-
-const canvas: HTMLCanvasElement = document.createElement('canvas');
+const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('canvas');
 const filepicker: HTMLInputElement = <HTMLInputElement>document.getElementById('filepicker');
 const scale: HTMLInputElement = <HTMLInputElement>document.getElementById('scale');
-
-app.append(canvas);
+const html: HTMLTextAreaElement = <HTMLTextAreaElement>document.getElementById('html');
+const css: HTMLTextAreaElement = <HTMLTextAreaElement>document.getElementById('css');
+const classname: HTMLInputElement = <HTMLInputElement>document.getElementById('classname');
+const transparent: HTMLInputElement = <HTMLInputElement>document.getElementById('transparent');
 
 filepicker.addEventListener('change', (e: Event) => {
   const target: HTMLInputElement = e.target as HTMLInputElement;
@@ -19,7 +19,7 @@ filepicker.addEventListener('change', (e: Event) => {
 
   const file: File = files[0];
 
-  if(!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+  if(!['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(file.type)) {
     target.value = '';
     return;
   }
@@ -42,24 +42,51 @@ filepicker.addEventListener('change', (e: Event) => {
       canvas.width = image.width;
       canvas.height = image.height;
 
-      console.dir(widthScale);
+      context.fillStyle = transparent.value;
+      context.fillRect(0, 0, canvas.width, canvas.height);
       context.drawImage(image, 0, 0);
 
       const pixels = [];
 
-      for(let x = 1; x <= widthScale; x++) {
-        for(let y = 1; y <= heightScale; y++) {
+      for(let x = 0; x < widthScale; x++) {
+        for(let y = 0; y < heightScale; y++) {
           const posX = x * pixelScale;
           const posY = y * pixelScale;
 
           const data = context.getImageData(posX, posY, pixelScale, pixelScale).data;
           var hex = "#" + ("000000" + rgbToHex(data[0], data[1], data[2])).slice(-6);
 
-          pixels.push(`${x}em ${y}em ${hex}`);
-
+          if(hex !== transparent.value) {
+            console.log(transparent.value);
+            pixels.push(`${x + 1}em ${y + 1}em ${hex}`);
+          }
         }
       }
-      console.log(pixels.join(', '));
+
+      const classnameValue = classname.value;
+
+      html.innerHTML = `<div class="${classnameValue}"></div>`;
+
+      css.innerHTML = `.${classnameValue} {
+  position: relative;
+  height: ${heightScale}em;
+  width: ${widthScale}em;
+  font-size: 1em;
+  overflow: hidden;
+}
+
+.${classnameValue}::before {
+  position: absolute;
+  top: -1em;
+  left: -1em;
+  height: 1em;
+  width: 1em;
+  content: '';
+}
+
+.${classnameValue}::before {
+  box-shadow: ${pixels.join(', ')};
+}`;
 
     };
     image.src = URL.createObjectURL(file);

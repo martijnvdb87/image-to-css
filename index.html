@@ -4,12 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>Image to CSS</title>
   </head>
   <body>
     <div id="app">
+      <canvas id="canvas"></canvas>
       <input id="filepicker" type="file">
       <input id="scale" value="1" min="1" max="100" type="number">
+      <input id="classname" type="text" value="image">
+      <input id="transparent" type="color" value="#01ff01">
+      <textarea id="html"></textarea>
+      <textarea id="css"></textarea>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
